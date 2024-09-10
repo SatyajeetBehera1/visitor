@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@clerk/nextjs": "^5.4.1",
+    "@react-hook/media-query": "^1.1.1",
     "gsap": "^3.12.5",
     "lodash": "^4.17.21",
     "next": "14.2.8",

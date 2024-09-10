@@ -42,13 +42,9 @@ interface SignUpFormProps {
   signUpWithEmail: ({
     emailAddress,
     password,
-    phonenumber,
-    username,
   }: {
     emailAddress: string;
     password: string;
-    phonenumber: string;
-    username: string;
   }) => void;
   clerkError: string;
 }
@@ -81,7 +77,7 @@ const SignupForm = ({ signUpWithEmail, clerkError }: SignUpFormProps) => {
     const phonenumber = target.phonenumber.value;
 
     // Call the signUpWithEmail function with all fields
-    signUpWithEmail({ emailAddress: email, password, username, phonenumber });
+    signUpWithEmail({ emailAddress: email, password });
   };
 
   return (

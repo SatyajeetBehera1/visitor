@@ -11,19 +11,16 @@ const Signup = () => {
   const {isLoaded, signUp, setActive} = useSignUp();
   const [clerkError, setClerkError] = useState("");
   const router = useRouter();
+
   const [verifying, setVerifying] = useState(false);
   const [code, setCode] = useState("");
 
   const signUpWithEmail = async ({
     emailAddress,
-    password,
-    phonenumber,
-    username,
+    password
   }: {
     emailAddress: string;
     password: string;
-    phonenumber:string;
-    username:string;
   }) => {
     if (!isLoaded) {
       return;
@@ -34,10 +31,8 @@ const Signup = () => {
         emailAddress,
         password,
       });
-      // send the email.
       await signUp.prepareEmailAddressVerification({strategy: "email_code"});
 
-      // change the UI to our pending section.
       setVerifying(true);
     } catch (err: any) {
       setClerkError(err.errors[0].message);
@@ -47,10 +42,12 @@ const Signup = () => {
   const handleVerify = async (e: FormEvent) => {
     e.preventDefault();
     if (!isLoaded) return;
-
+    
     try {
+      console.log("Degubber in try")
       const completeSignUp = await signUp.attemptEmailAddressVerification({
         code,
+        // strategy: 'email_code',
       });
       if (completeSignUp.status !== "complete") {
         console.log(JSON.stringify(completeSignUp, null, 2));
@@ -58,9 +55,10 @@ const Signup = () => {
 
       if (completeSignUp.status === "complete") {
         await setActive({session: completeSignUp.createdSessionId});
-        router.push("/");
+        router.push("http://localhost:3000/");
       }
     } catch (err) {
+      console.log("Degubber in catch")
       console.log("Error:", JSON.stringify(err, null, 2));
     }
   };
