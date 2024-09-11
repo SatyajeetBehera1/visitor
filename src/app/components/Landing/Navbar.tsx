@@ -1,9 +1,13 @@
+"use client";
 import Image from "next/image";
 import logo from "../../../assets/logo.png";
 import vector_2 from "../../../assets/vector_2.svg";
 import Link from "next/link";
+import { UserButton, useUser } from "@clerk/nextjs";
 
 export default function Navbar({ isOpen, isMobile, setIsOpen }) {
+  const { isSignedIn, user, isLoaded } = useUser();
+
   const toggleMenu = () => {
     setIsOpen(!isOpen);
   };
@@ -32,11 +36,20 @@ export default function Navbar({ isOpen, isMobile, setIsOpen }) {
           <div className="hidden md:block text-white cursor-pointer">About</div>
         </div>
         <div className="hidden md:flex items-center space-x-10 mr-[3%]">
-          <Link href="../../Login" className="no-underline">
+          {!isSignedIn ? (
+            <Link href="../../Login" className="no-underline">
+              <button className="text-white border-[#E08DFF] border-2 px-6 py-2 rounded-2xl">
+                Login
+              </button>
+            </Link>
+          ) : (
+            <UserButton afterSignOutUrl="/" />
+          )}
+          {/* <Link href="../../Login" className="no-underline">
             <button className="text-white border-[#E08DFF] border-2 px-6 py-2 rounded-2xl">
               Login
             </button>
-          </Link>
+          </Link> */}
           <a href="#apply" className="no-underline">
             <div className="text-white border-[#E08DFF] border-2 px-6 py-2 rounded-2xl cursor-pointer">
               Apply as Mentor
@@ -64,6 +77,15 @@ export default function Navbar({ isOpen, isMobile, setIsOpen }) {
         {isMobile && isOpen && (
           <div className="absolute top-0 left-0 w-full h-full bg-black bg-opacity-80 flex flex-col justify-center items-center z-10">
             <div className="flex flex-col items-center space-y-4 p-4">
+            {!isSignedIn ? (
+                <Link href="../../Login" className="no-underline">
+                  <button className="text-white border-[#E08DFF] border-2 px-6 py-2 rounded-2xl">
+                    Login
+                  </button>
+                </Link>
+              ) : (
+                <UserButton afterSignOutUrl="/" />
+              )}
               <a href="#learn" className="no-underline">
                 <button className="text-white border-[#E08DFF] border-2 px-6 py-2 rounded-2xl">
                   Learn
@@ -74,13 +96,12 @@ export default function Navbar({ isOpen, isMobile, setIsOpen }) {
                   About
                 </div>
               </a>
-              
-              
-              <Link href="../../Login" className="no-underline">
+
+              {/* <Link href="../../Login" className="no-underline">
                 <button className="text-white border-[#E08DFF] border-2 px-6 py-2 rounded-2xl">
                   Login
                 </button>
-              </Link>
+              </Link> */}
               <a href="#apply" className="no-underline">
                 <div className="text-white border-[#E08DFF] border-2 px-6 py-2 rounded-2xl cursor-pointer">
                   Apply as Mentor
