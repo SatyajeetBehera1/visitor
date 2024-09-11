@@ -1,10 +1,10 @@
 "use client";
-import React from "react";
 import Image from "next/image";
 import styled from "styled-components";
 import Link from "next/link";
-import { FcGoogle } from "react-icons/fc";
-import { FaGithub, FaLinkedin } from "react-icons/fa";
+import React, { useState } from "react";
+import { useAuth, useSignIn } from "@clerk/nextjs";
+import { useRouter } from "next/navigation";
 import signup_bottomCircle from "../../assets/signup_bottomCircle.svg";
 import signup_upperCircle from "../../assets/signup_upperCircle.svg";
 
@@ -41,13 +41,82 @@ const Circle = styled(Image)`
 `;
 
 export default function Page() {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [code, setCode] = useState("");
+  const [successfulCreation, setSuccessfulCreation] = useState(false);
+  const [secondFactor, setSecondFactor] = useState(false);
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false); // Button loading state
+
+  const router = useRouter();
+  const { isSignedIn } = useAuth();
+  const { isLoaded, signIn, setActive } = useSignIn();
+
+  if (!isLoaded) {
+    return null;
+  }
+
+  // If user is already signed in, redirect to the home page
+  if (isSignedIn) {
+    router.push("/");
+  }
+
+  // Send the password reset code to the user's email
+  async function create(e: React.FormEvent) {
+    e.preventDefault();
+    setLoading(true);
+    await signIn
+      ?.create({
+        strategy: "reset_password_email_code",
+        identifier: email,
+      })
+      .then(() => {
+        setSuccessfulCreation(true);
+        setError("");
+        setLoading(false);
+      })
+      .catch((err) => {
+        setError(err.errors[0].longMessage);
+        setLoading(false);
+      });
+  }
+
+  // Reset the password using the code
+  async function reset(e: React.FormEvent) {
+    e.preventDefault();
+    setLoading(true);
+    await signIn
+      ?.attemptFirstFactor({
+        strategy: "reset_password_email_code",
+        code,
+        password,
+      })
+      .then((result) => {
+        if (result.status === "needs_second_factor") {
+          setSecondFactor(true);
+          setError("");
+        } else if (result.status === "complete") {
+          setActive({ session: result.createdSessionId });
+          setError("");
+          router.push("/");
+        } else {
+          setError("Unexpected status: " + result.status);
+        }
+        setLoading(false);
+      })
+      .catch((err) => {
+        setError(err.errors[0].longMessage);
+        setLoading(false);
+      });
+  }
+
   return (
     <div className="flex justify-center items-center h-screen bg-black text-white px-12 overflow-hidden relative">
       <div className="flex flex-col justify-start items-start space-y-8 w-[70%] p-8">
         <div className="text-[5rem] font-bold tracking-wide">
-          No Worries.!!{" "}
+          No Worries.!!
         </div>
-
         <div className="flex items-center w-full">
           <div className="border-4 border-white px-6 py-3 text-lg">
             Take&nbsp;me&nbsp;Back&nbsp;.!
@@ -61,22 +130,56 @@ export default function Page() {
         <Circle src={signup_bottomCircle} alt="Bottom Circle" />
 
         <GlassContainer className="glass-container">
-          <form className="space-y-4 relative z-10 flex flex-col h-[550px]">
+          <form
+            className="space-y-4 relative z-10 flex flex-col h-[550px]"
+            onSubmit={!successfulCreation ? create : reset}
+          >
             <div>
               <div className="text-3xl font-semibold text-start">
                 Forgot Password ?
               </div>
             </div>
             <div className="text-sm font-semibold text-start">
-              Please enter you’re email
+              {successfulCreation
+                ? "Enter the password reset code and your new password."
+                : "Please enter your email"}
             </div>
 
-            <input
-              type="email"
-              id="email"
-              placeholder="userEmail"
-              className="w-full p-2 rounded-2xl bg-transparent border-2 text-lg border-white placeholder-white focus:outline-none"
-            />
+            {!successfulCreation && (
+              <input
+                type="email"
+                id="email"
+                placeholder="userEmail"
+                className="w-full p-2 rounded-2xl bg-transparent border-2 text-lg border-white placeholder-white focus:outline-none"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+              />
+            )}
+
+            {successfulCreation && (
+              <>
+                <input
+                  type="text"
+                  id="code"
+                  placeholder="Enter reset code"
+                  className="w-full p-2 rounded-2xl bg-transparent border-2 text-lg border-white placeholder-white focus:outline-none"
+                  value={code}
+                  onChange={(e) => setCode(e.target.value)}
+                  required
+                />
+
+                <input
+                  type="password"
+                  id="password"
+                  placeholder="New Password"
+                  className="w-full p-2 rounded-2xl bg-transparent border-2 text-lg border-white placeholder-white focus:outline-none"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                />
+              </>
+            )}
 
             <div className="text-center mt-auto">
               <button
@@ -86,13 +189,20 @@ export default function Page() {
                   background:
                     "linear-gradient(90deg, #628EFF 0%, #8740CD 53%, #580475 100%)",
                 }}
+                disabled={loading}
               >
-                Reset Password
+                {loading
+                  ? "Processing..."
+                  : successfulCreation
+                  ? "Reset Password"
+                  : "Send Reset Code"}
               </button>
             </div>
 
+            {error && <p className="text-red-500 text-center">{error}</p>}
+
             {/* Bottom Section */}
-            <div className="bottom mt-auto" style={{marginTop:300}}>
+            <div className="bottom mt-auto" style={{ marginTop: 300 }}>
               <div className="flex justify-center">
                 <Link href="../../signup" className="no-underline">
                   <p className="text-sm">Don’t have an account? Signup</p>
