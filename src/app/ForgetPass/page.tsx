@@ -45,9 +45,8 @@ export default function Page() {
   const [password, setPassword] = useState("");
   const [code, setCode] = useState("");
   const [successfulCreation, setSuccessfulCreation] = useState(false);
-  const [secondFactor, setSecondFactor] = useState(false);
   const [error, setError] = useState("");
-  const [loading, setLoading] = useState(false); // Button loading state
+  const [loading, setLoading] = useState(false);
 
   const router = useRouter();
   const { isSignedIn } = useAuth();
@@ -57,75 +56,63 @@ export default function Page() {
     return null;
   }
 
-  // If user is already signed in, redirect to the home page
   if (isSignedIn) {
     router.push("/");
   }
 
-  // Send the password reset code to the user's email
-  async function create(e: React.FormEvent) {
+  const create = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    await signIn
-      ?.create({
+    try {
+      await signIn?.create({
         strategy: "reset_password_email_code",
         identifier: email,
-      })
-      .then(() => {
-        setSuccessfulCreation(true);
-        setError("");
-        setLoading(false);
-      })
-      .catch((err) => {
-        setError(err.errors[0].longMessage);
-        setLoading(false);
       });
-  }
+      setSuccessfulCreation(true);
+      setError("");
+    } catch (err) {
+      setError(err.errors[0]?.longMessage || "An error occurred");
+    } finally {
+      setLoading(false);
+    }
+  };
 
-  // Reset the password using the code
-  async function reset(e: React.FormEvent) {
+  const reset = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    await signIn
-      ?.attemptFirstFactor({
+    try {
+      const result = await signIn?.attemptFirstFactor({
         strategy: "reset_password_email_code",
         code,
         password,
-      })
-      .then((result) => {
-        if (result.status === "needs_second_factor") {
-          setSecondFactor(true);
-          setError("");
-        } else if (result.status === "complete") {
-          setActive({ session: result.createdSessionId });
-          setError("");
-          router.push("/");
-        } else {
-          setError("Unexpected status: " + result.status);
-        }
-        setLoading(false);
-      })
-      .catch((err) => {
-        setError(err.errors[0].longMessage);
-        setLoading(false);
       });
-  }
+
+      if (result?.status === "complete") {
+        setActive({ session: result.createdSessionId });
+        router.push("/");
+      } else {
+        setError("Unexpected status: " + result?.status);
+      }
+    } catch (err) {
+      setError(err.errors[0]?.longMessage || "An error occurred");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
-    <div className="flex justify-center items-center h-screen bg-black text-white px-12 overflow-hidden relative">
-      <div className="flex flex-col justify-start items-start space-y-8 w-[70%] p-8">
-        <div className="text-[5rem] font-bold tracking-wide">
-          No Worries.!!
-        </div>
+    <div className="flex flex-col md:flex-row justify-center items-center h-screen bg-black text-white px-12 relative">
+      <div className="hidden md:flex flex-col justify-start items-start space-y-8 w-[70%] p-8">
+        <div className="text-[5rem] font-bold tracking-wide">No Worries.!!</div>
         <div className="flex items-center w-full">
           <div className="border-4 border-white px-6 py-3 text-lg">
-            Take&nbsp;me&nbsp;Back&nbsp;.!
+            Take&nbsp;me&nbsp;Back&nbsp;!
           </div>
           <div className="w-full border-t-2 border-dashed border-white ml-4"></div>
         </div>
       </div>
 
-      <div className="relative w-[30%] h-auto">
+      <div className="relative w-full md:w-[30%] h-auto">
         <Circle src={signup_upperCircle} alt="Upper Circle" />
         <Circle src={signup_bottomCircle} alt="Bottom Circle" />
 
@@ -134,10 +121,8 @@ export default function Page() {
             className="space-y-4 relative z-10 flex flex-col h-[550px]"
             onSubmit={!successfulCreation ? create : reset}
           >
-            <div>
-              <div className="text-3xl font-semibold text-start">
-                Forgot Password ?
-              </div>
+            <div className="text-3xl font-semibold text-start">
+              Forgot Password ?
             </div>
             <div className="text-sm font-semibold text-start">
               {successfulCreation
@@ -184,11 +169,11 @@ export default function Page() {
             <div className="text-center mt-auto">
               <button
                 type="submit"
-                className="w-full text-white py-3 rounded-2xl transition-colors duration-300"
-                style={{
-                  background:
-                    "linear-gradient(90deg, #628EFF 0%, #8740CD 53%, #580475 100%)",
-                }}
+                className={`w-full text-white py-3 rounded-2xl transition-colors duration-300 ${
+                  loading
+                    ? "bg-gray-500 cursor-not-allowed"
+                    : "bg-gradient-to-r from-blue-400 to-purple-600"
+                }`}
                 disabled={loading}
               >
                 {loading
@@ -201,19 +186,16 @@ export default function Page() {
 
             {error && <p className="text-red-500 text-center">{error}</p>}
 
-            {/* Bottom Section */}
-            <div className="bottom mt-auto" style={{ marginTop: 300 }}>
-              <div className="flex justify-center">
-                <Link href="/sign-up" className="no-underline">
-                  <p className="text-sm">Don’t have an account? Signup</p>
-                </Link>
-              </div>
+            <div className="mt-auto flex justify-center">
+              <Link href="/sign-up">
+                <p className="text-sm">Don’t have an account? Signup</p>
+              </Link>
+            </div>
 
-              <div className="flex space-x-5 items-center justify-center">
-                <p className="text-sm">Terms & Conditions</p>
-                <p className="text-sm">Support</p>
-                <p className="text-sm">Customer Care</p>
-              </div>
+            <div className="flex space-x-5 items-center justify-center">
+              <p className="text-sm">Terms & Conditions</p>
+              <p className="text-sm">Support</p>
+              <p className="text-sm">Customer Care</p>
             </div>
           </form>
         </GlassContainer>
