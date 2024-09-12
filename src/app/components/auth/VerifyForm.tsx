@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, FormEvent } from "react";
+import React, { FormEvent } from "react";
 import Image from "next/image";
 import styled from "styled-components";
 import { FcGoogle } from "react-icons/fc";
@@ -42,10 +42,10 @@ interface VerifyFormProps {
 }
 
 const VerifyForm = ({ handleVerify, code, setCode }: VerifyFormProps) => {
-  
   return (
     <div className="flex justify-center items-center h-screen bg-black text-white px-12 overflow-hidden relative">
-      <div className="flex flex-col justify-start items-start space-y-8 w-[70%] p-8">
+      {/* Left Side - Hidden on mobile screens */}
+      <div className="hidden md:flex flex-col justify-start items-start space-y-8 w-[70%] p-8">
         <div className="text-[5rem] font-bold tracking-wide">
           Welcome Back .!
         </div>
@@ -58,14 +58,15 @@ const VerifyForm = ({ handleVerify, code, setCode }: VerifyFormProps) => {
         </div>
       </div>
 
-      <div className="relative w-[30%] h-auto">
+      {/* Right Side - Form */}
+      <div className="relative w-full md:w-[30%] h-auto flex items-center justify-center">
         <Circle src={signup_upperCircle} alt="Upper Circle" />
         <Circle src={signup_bottomCircle} alt="Bottom Circle" />
 
         <GlassContainer className="glass-container">
           <form
             onSubmit={handleVerify}
-            className="space-y-4 relative z-10 h-[550px]"
+            className="space-y-4 relative z-10"
           >
             <div>
               <div className="text-3xl font-semibold text-start">
@@ -87,6 +88,7 @@ const VerifyForm = ({ handleVerify, code, setCode }: VerifyFormProps) => {
               className="w-full p-2 rounded-2xl bg-transparent border-2 text-lg border-white placeholder-white focus:outline-none"
               required
             />
+
             <div className="text-center">
               <button
                 type="submit"
@@ -95,7 +97,9 @@ const VerifyForm = ({ handleVerify, code, setCode }: VerifyFormProps) => {
                   background:
                     "linear-gradient(90deg, #628EFF 0%, #8740CD 53%, #580475 100%)",
                 }}
-              >Way to Login</button>
+              >
+                Way to Login
+              </button>
             </div>
 
             <div className="flex items-center my-4">
@@ -110,12 +114,10 @@ const VerifyForm = ({ handleVerify, code, setCode }: VerifyFormProps) => {
               <FaLinkedin className="h-10 w-10" />
             </div>
 
-            <div style={{ marginTop: 230 }}>
-              <div className="flex space-x-5 items-center justify-center">
-                <p className="text-sm">Terms & Conditions</p>
-                <p className="text-sm">Support</p>
-                <p className="text-sm">Customer Care</p>
-              </div>
+            <div className="flex space-x-5 items-center justify-center mt-16">
+              <p className="text-sm">Terms & Conditions</p>
+              <p className="text-sm">Support</p>
+              <p className="text-sm">Customer Care</p>
             </div>
           </form>
         </GlassContainer>
@@ -125,4 +127,3 @@ const VerifyForm = ({ handleVerify, code, setCode }: VerifyFormProps) => {
 };
 
 export default VerifyForm;
-

@@ -37,7 +37,7 @@ export default function Navbar({ isOpen, isMobile, setIsOpen }) {
         </div>
         <div className="hidden md:flex items-center space-x-10 mr-[3%]">
           {!isSignedIn ? (
-            <Link href="../../Login" className="no-underline">
+            <Link href="/sign-in" className="no-underline">
               <button className="text-white border-[#E08DFF] border-2 px-6 py-2 rounded-2xl">
                 Login
               </button>
@@ -78,7 +78,7 @@ export default function Navbar({ isOpen, isMobile, setIsOpen }) {
           <div className="absolute top-0 left-0 w-full h-full bg-black bg-opacity-80 flex flex-col justify-center items-center z-10">
             <div className="flex flex-col items-center space-y-4 p-4">
             {!isSignedIn ? (
-                <Link href="../../Login" className="no-underline">
+                <Link href="/sign-in" className="no-underline">
                   <button className="text-white border-[#E08DFF] border-2 px-6 py-2 rounded-2xl">
                     Login
                   </button>

@@ -104,7 +104,7 @@ const SignupForm = ({ signUpWithEmail, clerkError }: SignUpFormProps) => {
 
   return (
     <div className="flex justify-center items-center h-screen bg-black text-white px-12 overflow-hidden relative">
-      <div className="flex flex-col justify-start items-start space-y-8 w-[70%] p-8">
+      <div className="hidden md:flex flex-col justify-start items-start space-y-8 w-[70%] p-8">
         <div className="text-[5rem] font-bold tracking-wide">
           Roll the Carpet!
         </div>
@@ -117,7 +117,7 @@ const SignupForm = ({ signUpWithEmail, clerkError }: SignUpFormProps) => {
         </div>
       </div>
 
-      <div className="relative w-[30%] h-auto">
+      <div className="relative w-full md:w-[30%] h-auto md:block flex items-center justify-center">
         <Circle src={signup_upperCircle} alt="Upper Circle" />
         <Circle src={signup_bottomCircle} alt="Bottom Circle" />
 
