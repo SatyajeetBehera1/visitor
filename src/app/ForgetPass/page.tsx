@@ -204,7 +204,7 @@ export default function Page() {
             {/* Bottom Section */}
             <div className="bottom mt-auto" style={{ marginTop: 300 }}>
               <div className="flex justify-center">
-                <Link href="../../signup" className="no-underline">
+                <Link href="/sign-up" className="no-underline">
                   <p className="text-sm">Don’t have an account? Signup</p>
                 </Link>
               </div>

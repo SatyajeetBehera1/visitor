@@ -125,3 +125,4 @@ const VerifyForm = ({ handleVerify, code, setCode }: VerifyFormProps) => {
 };
 
 export default VerifyForm;
+
