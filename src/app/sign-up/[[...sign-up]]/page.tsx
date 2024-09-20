@@ -37,42 +37,42 @@ const Signup = () => {
     }
 
     try {
+      // Step 1: First, check with your API
+      const response = await fetch("http://127.0.0.1:8000/api/user/singup/", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          username: userName,
+          email: emailAddress,
+          phone_number: phoneNumber,
+          password,
+        }),
+      });
+
+      const apiResponse = await response.json();
+
+      // Step 2: If the API sends an error, show the error and return
+      if (!response.ok) {
+        setClerkError(apiResponse.message || "API Error: Something went wrong");
+        return;
+      }
+
+      // Step 3: If no error from API, proceed with Clerk sign-up
+      setUserData({ emailAddress, password, userName, phoneNumber });
+
       await signUp.create({
         emailAddress,
         password,
       });
-      setUserData({ emailAddress, password, userName, phoneNumber });
-      try {
-        if (userData) {
-          const response = await fetch("http://127.0.0.1:8000/api/user/singup/", {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-              username: userData.userName,
-              email: userData.emailAddress,
-              phone_number: userData.phoneNumber,
-              password: userData.password,
-            }),
-          });
-          const errorData = await response.json();
-          setClerkError(errorData.message || "API Error: Something went wrong");
 
-          if (response.ok) {
-            console.log("All okay");
-          }
-        }
-      } catch (error) {
-        console.log("Degubber in catch");
-        console.log(error)
-      }
-
+      // Step 4: Trigger email verification
       await signUp.prepareEmailAddressVerification({ strategy: "email_code" });
 
       setVerifying(true);
-    } catch (err: any) {
-      setClerkError(err.errors[0].message);
+    } catch (error: any) {
+      setClerkError(error.message || "Something went wrong during sign-up");
     }
   };
 
@@ -81,11 +81,10 @@ const Signup = () => {
     if (!isLoaded) return;
 
     try {
-      console.log("Degubber in try");
-      
       const completeSignUp = await signUp.attemptEmailAddressVerification({
         code,
       });
+
       if (completeSignUp.status !== "complete") {
         console.log(JSON.stringify(completeSignUp, null, 2));
       }
@@ -95,7 +94,6 @@ const Signup = () => {
         router.push("/");
       }
     } catch (err) {
-      console.log("Degubber in catch");
       console.log("Error:", JSON.stringify(err, null, 2));
     }
   };
